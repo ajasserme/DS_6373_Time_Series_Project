@@ -1,6 +1,7 @@
 library(tswge)
 library(vars)
 library(nnfor)
+library(GGally)
 
 # Setting the working directory to the source file location
 
@@ -12,18 +13,18 @@ kei = read.csv("Data/Key_Economic_Indicators_20240401.csv", header = TRUE)
 # Checking that data was loaded correctly
 head(kei)
 
-# We are only interested 
-(kei$Consumer.Price.Index.TX)
-na.omit((kei$Consumer.Price.Index.TX))
 # We are interested in the modeling the Existing Single Family Home Price in 
 # Texas based on the evolution of the Consumer Price Index and Unemployment in 
 # Texas from January 2007 (since we have missing data from previous time 
-# periods) to February 2024 so we will create a time series object with this 
-# information
+# periods)
+cpi = na.omit(kei$Consumer.Price.Index.TX)
+unemp = na.omit(kei$Unemployment.TX)
+home_price = na.omit(kei$Existing.Single.Family.Home.Price.TX)
 
-cpi_ts = ts(data = na.omit(kei$Consumer.Price.Index.TX), start = c(2007,1), frequency = 12)
-unemp_ts = ts(data = na.omit(kei$Unemployment.TX), start = c(2007,1), frequency = 12)
-home_price_ts = ts(data = na.omit(kei$Existing.Single.Family.Home.Price.TX), start = c(2007,1), end = c(2024,2), frequency = 12)
+# Creating the time series objects 
+cpi_ts = ts(data = cpi, start = c(2007,1), frequency = 12)
+unemp_ts = ts(data = unemp, start = c(2007,1), frequency = 12)
+home_price_ts = ts(data = home_price, start = c(2007,1), end = c(2024,2), frequency = 12)
 
 # Checking that the time series have the correct information
 cpi_ts
@@ -35,7 +36,11 @@ plotts.sample.wge(cpi_ts)
 plotts.sample.wge(unemp_ts)
 plotts.sample.wge(home_price_ts)
 
-df = data.frame(cpi_ts, unemp_ts, home_price_ts)
+# Creating a data frame:
+df = data.frame(cpi, unemp, home_price)
+
+# Looking at the data pairs
+ggpairs(df)
 
 # TO DO: CREATE TRAINING AND TEST SET
 
