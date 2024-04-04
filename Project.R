@@ -67,7 +67,8 @@ fit
 
 
 # 5. Pick a short and long term forecast horizon based on your “problem” from part 3 above and compare all models with the ASE and the rolling window RMSE for both the short and long term forecasts 
-# Horizon: maybe 6 months or 1 year for short term and 3 or 5 years for long term?
+# Short term: 6 months
+# Long term: 5 years
 
 
 # 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
