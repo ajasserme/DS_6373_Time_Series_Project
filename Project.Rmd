@@ -5,26 +5,91 @@ date: "2024-04-04"
 output: html_document
 ---
 
+TODO: ALEX
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tswge)
+library(vars)
+library(nnfor)
+library(GGally)
+
+# Loading the Key Economic Indicators data
+kei = read.csv("Data/Key_Economic_Indicators_20240401.csv", header = TRUE)
+
+# Checking that data was loaded correctly
+head(kei)
+
+# We are interested in the modeling the Existing Single Family Home Price in 
+# Texas based on the evolution of the Consumer Price Index and Unemployment in 
+# Texas from January 2007 (since we have missing data from previous time 
+# periods)
+cpi = na.omit(kei$Consumer.Price.Index.TX)
+unemp = na.omit(kei$Unemployment.TX)
+home_price = na.omit(kei$Existing.Single.Family.Home.Price.TX)
+
+# Creating the time series objects 
+cpi_ts = ts(data = cpi, start = c(2007,1), frequency = 12)
+unemp_ts = ts(data = unemp, start = c(2007,1), frequency = 12)
+home_price_ts = ts(data = home_price, start = c(2007,1), end = c(2024,2), frequency = 12)
+
+# Checking that the time series have the correct information
+cpi_ts
+unemp_ts
+home_price_ts
+
+# Plotting the data
+plotts.sample.wge(cpi_ts)
+plotts.sample.wge(unemp_ts)
+plotts.sample.wge(home_price_ts)
+
+# Creating a data frame:
+df = data.frame(cpi, unemp, home_price)
+
+# Looking at the data pairs
+ggpairs(df)
+
+# TO DO: CREATE TRAINING AND TEST SET
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+TODO: JAE
+```{r setup, include=FALSE}
+# 4a. Fitting ARMA / ARIMA / ARUMA / Signal Plus Noise (univariate analysis)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+TODO: ALEX
+```{r setup, include=FALSE}
+# 4b. Fitting VAR model
+# TO DO: very basic model, need to refine it
+VARselect(df, type = "none")
+lsfit=VAR(df,p=2,type="none")
+lsfit
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+TODO: ALEX
+```{r setup, include=FALSE}
+# 4c. Fitting Neural Network (mlp) model
+
+# TO DO: very basic model, need to refine it
+fit = mlp(home_price_ts, xreg = data.frame(cpi_ts, unemp_ts))
+fit
+```
+
+TODO: JAE
+```{r setup, include=FALSE}
+# 4d. Fitting Ensemble model using at least two of the above. 
+```
+
+Waiting until we have fleshed out the models
+```{r setup, include=FALSE}
+# 5. Pick a short and long term forecast horizon based on your “problem” from part 3 above and compare all models with the ASE and the rolling window RMSE for both the short and long term forecasts 
+# Short term: 6 months
+# Long term: 5 years
+
+```
+
+Waiting until we have fleshed out the models
+```{r setup, include=FALSE}
+# 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
+# Waiting until we have fleshed out the models
+```
