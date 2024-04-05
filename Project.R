@@ -45,7 +45,11 @@ ggpairs(df)
 # TO DO: CREATE TRAINING AND TEST SET
 
 
+# Alex will take care of everything above
+
+
 # 4a. Fitting ARMA / ARIMA / ARUMA / Signal Plus Noise (univariate analysis)
+# Jae
 
 
 # 4b. Fitting VAR model
@@ -64,11 +68,13 @@ fit
 
 
 # 4d. Fitting Ensemble model using at least two of the above. 
-
+# Jae
 
 # 5. Pick a short and long term forecast horizon based on your “problem” from part 3 above and compare all models with the ASE and the rolling window RMSE for both the short and long term forecasts 
 # Short term: 6 months
 # Long term: 5 years
+# Waiting until we have fleshed out the models
 
 
 # 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
+# Waiting until we have fleshed out the models
