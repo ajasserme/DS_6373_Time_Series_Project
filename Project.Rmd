@@ -14,16 +14,17 @@ library(vars)
 library(nnfor)
 library(GGally)
 
-# Loading the Key Economic Indicators data
+# Loading the Key Economic Indicators data (downloaded from 
+# https://data.texas.gov/dataset/Key-Economic-Indicators/karz-jr5v/about_data)
 kei = read.csv("Data/Key_Economic_Indicators_20240401.csv", header = TRUE)
 
 # Checking that data was loaded correctly
 head(kei)
 
-# We are interested in the modeling the Existing Single Family Home Price in 
-# Texas based on the evolution of the Consumer Price Index and Unemployment in 
-# Texas from January 2007 (since we have missing data from previous time 
-# periods)
+# We are interested in the modeling the Existing Single Family Home Price TX 
+# (column Q) based on the evolution of the Consumer Price Index TX (column G) 
+# and Unemployment TX (column L) from January 2007 (since we have missing data 
+# from previous time periods)
 cpi = na.omit(kei$Consumer.Price.Index.TX)
 unemp = na.omit(kei$Unemployment.TX)
 home_price = na.omit(kei$Existing.Single.Family.Home.Price.TX)
@@ -49,7 +50,7 @@ df = data.frame(cpi, unemp, home_price)
 # Looking at the data pairs
 ggpairs(df)
 
-# TO DO: CREATE TRAINING AND TEST SET
+# TO DO: CREATE TRAINING AND TEST SET; should we do an 80%/20% split?
 ```
 
 TODO: JAE
