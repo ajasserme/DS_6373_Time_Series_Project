@@ -6,8 +6,10 @@ output: html_document
 ---
 
 TODO: ALEX
-```{r setup, include=FALSE}
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
+
+# TO DO: FIX WHAT IS DISPLAYED IN THE FINAL RMD FILE (FOR EXAMPLE, REMOVE WARNING MESSAGES FROM LIBRARY LOADS)
 
 library(tswge)
 library(vars)
@@ -32,12 +34,7 @@ home_price = na.omit(kei$Existing.Single.Family.Home.Price.TX)
 # Creating the time series objects 
 cpi_ts = ts(data = cpi, start = c(2007,1), frequency = 12)
 unemp_ts = ts(data = unemp, start = c(2007,1), frequency = 12)
-home_price_ts = ts(data = home_price, start = c(2007,1), end = c(2024,2), frequency = 12)
-
-# Checking that the time series have the correct information
-cpi_ts
-unemp_ts
-home_price_ts
+home_price_ts = ts(data = home_price, start = c(2007,1), frequency = 12)
 
 # Plotting the data
 plotts.sample.wge(cpi_ts)
@@ -50,39 +47,72 @@ df = data.frame(cpi, unemp, home_price)
 # Looking at the data pairs
 ggpairs(df)
 
-# TO DO: CREATE TRAINING AND TEST SET; should we do an 80%/20% split?
+# Training and test set for short term forecast (6 months)
+
+# Data Frame
+short_term = 6
+train_index_short = nrow(df) - short_term
+df_train_s = head(df, n=train_index_short)
+df_test_s = tail(df, n=short_term)
+
+# Time series
+cpi_ts_train_s = ts(data = df_train_s$cpi, start = c(2007,1), frequency = 12)
+unemp_ts_train_s = ts(data = df_train_s$unemp, start = c(2007,1), frequency = 12)
+home_price_ts_train_s = ts(data = df_train_s$home_price, start = c(2007,1), frequency = 12)
+
+cpi_ts_test_s = ts(data = df_test_s$cpi, start = c(2023,9), frequency = 12)
+unemp_ts_test_s = ts(data = df_test_s$unemp, start = c(2023,9), frequency = 12)
+home_price_ts_test_s = ts(data = df_test_s$home_price, start = c(2023,9), frequency = 12)
+
+# Training and test set for long term forecast (5 years)
+
+# Data Frame
+long_term = 60
+train_index_long = nrow(df) - long_term
+df_train_l = head(df, n=train_index_long)
+df_test_l = tail(df, n=long_term)
+
+# Time series
+cpi_ts_train_l = ts(data = df_train_l$cpi, start = c(2007,1), frequency = 12)
+unemp_ts_train_l = ts(data = df_train_l$unemp, start = c(2007,1), frequency = 12)
+home_price_ts_train_l = ts(data = df_train_l$home_price, start = c(2007,1), frequency = 12)
+
+cpi_ts_test_l = ts(data = df_test_l$cpi, start = c(2019,3), frequency = 12)
+unemp_ts_test_l = ts(data = df_test_l$unemp, start = c(2019,3), frequency = 12)
+home_price_ts_test_l = ts(data = df_test_l$home_price, start = c(2019,3), frequency = 12)
+
 ```
 
 TODO: JAE
-```{r setup, include=FALSE}
+```{r}
 # 4a. Fitting ARMA / ARIMA / ARUMA / Signal Plus Noise (univariate analysis)
 ```
 
 TODO: ALEX
-```{r setup, include=FALSE}
+```{r}
 # 4b. Fitting VAR model
 # TO DO: very basic model, need to refine it
 VARselect(df, type = "none")
-lsfit=VAR(df,p=2,type="none")
-lsfit
+var_fit=VAR(df,p=2,type="none")
+var_fit
 ```
 
 TODO: ALEX
-```{r setup, include=FALSE}
+```{r}
 # 4c. Fitting Neural Network (mlp) model
 
 # TO DO: very basic model, need to refine it
-fit = mlp(home_price_ts, xreg = data.frame(cpi_ts, unemp_ts))
-fit
+mlp_fit = mlp(home_price_ts, xreg = data.frame(cpi_ts, unemp_ts))
+mlp_fit
 ```
 
 TODO: JAE
-```{r setup, include=FALSE}
+```{r}
 # 4d. Fitting Ensemble model using at least two of the above. 
 ```
 
 Waiting until we have fleshed out the models
-```{r setup, include=FALSE}
+```{r}
 # 5. Pick a short and long term forecast horizon based on your “problem” from part 3 above and compare all models with the ASE and the rolling window RMSE for both the short and long term forecasts 
 # Short term: 6 months
 # Long term: 5 years
@@ -90,7 +120,7 @@ Waiting until we have fleshed out the models
 ```
 
 Waiting until we have fleshed out the models
-```{r setup, include=FALSE}
+```{r}
 # 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
 # Waiting until we have fleshed out the models
 ```
