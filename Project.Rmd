@@ -86,6 +86,73 @@ home_price_ts_test_l = ts(data = df_test_l$home_price, start = c(2019,3), freque
 # TODO: JAE
 # 4a. Fitting ARMA / ARIMA / ARUMA / Signal Plus Noise (univariate analysis)
 
+# Short-term ARMA for cpi
+aic5.wge(cpi, p = 0:5, q = 0:3)
+est.cpi = est.arma.wge(cpi, p = 4, q = 2)
+mean(cpi)
+preds = fore.arma.wge(cpi, phi = est.cpi$phi, n.ahead = 6, lastn = TRUE)
+ASE = mean((cpi[(length(cpi)-6+1)] - preds$f)^2)
+ASE # 3.926501
+
+# Short-term ARIMA for cpi
+cpi.d1 = artrans.wge(cpi, phi.tr = 1)
+aic5.wge(cpi.d1, p = 0:5, q = 0:3)
+est.cpi.d1 = est.arma.wge(cpi.d1, p = 2, q = 3)
+preds = fore.arima.wge(cpi.d1, phi = est.cpi.d1$phi, d = 1, n.ahead = 6, lastn = F)
+preds = fore.arima.wge(cpi, phi = est.cpi.d1$phi, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((cpi[(length(cpi)-6+1)] - preds$f)^2)
+ASE # 7.397674
+
+# Short-term ARUMA for cpi
+cpi.12 = artrans.wge(cpi.d1, phi.tr = c(rep(0,11),1))
+aic5.wge(cpi.12, p = 0:5, q = 0:3)
+est.cpi12 = est.arma.wge(cpi.12, p = 2, q = 1)
+preds = fore.aruma.wge(cpi.12, phi = est.cpi12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
+preds = fore.aruma.wge(cpi, phi = est.cpi12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((cpi[(length(cpi)-6+1)] - preds$f)^2)
+ASE # 74.62757
+
+# Short-term Signal-Plus Noise for cpi
+wbg.boot.wge(cpi) # p-value 0.068 <- FTR
+# Therefore, we will fit the above models only instead of continuing to look for a linear signal.
+#xa = slr.wge(cpi)
+#xa$res
+#xa.aic = aic.burg.wge(xa$res, p = 1:5)
+
+
+
+# Short-term ARMA for unemp
+aic5.wge(unemp, p = 0:5, q = 0:3)
+est.unemp = est.arma.wge(unemp, p = 1, q = 1)
+mean(unemp) # (1-.913B)(X_t - 5.474) = a_t(1+.282B)
+preds = fore.arma.wge(unemp, phi = est.unemp$phi, n.ahead = 6, lastn = TRUE)
+ASE = mean((unemp[(length(unemp)-6+1)] - preds$f)^2)
+ASE # 0.2174931
+
+# Short-term ARIMA for unemp
+unemp.d1 = artrans.wge(unemp, phi.tr = 1)
+aic5.wge(unemp.d1, p = 0:5, q = 0:3)
+est.unemp.d1 = est.arma.wge(unemp.d1, p = 2, q = 2) # (1-B)(1-.6192B-.2785B^2)(X_t - 5.474) = a_t(1-.4423B-.5577B^2)
+preds = fore.arima.wge(unemp.d1, phi = est.unemp.d1$phi, d = 1, n.ahead = 6, lastn = F)
+preds = fore.arima.wge(unemp, phi = est.unemp.d1$phi, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((unemp[(length(unemp)-6+1)] - preds$f)^2)
+ASE # 6.968271e-30
+
+# Short-term ARUMA for unemp
+unemp.12 = artrans.wge(unemp.d1, phi.tr = c(rep(0,11),1))
+aic5.wge(unemp.12, p = 0:5, q = 0:3)
+est.unemp.12 = est.arma.wge(unemp.12, p = 2, q = 3) # (1-B)(1-B^12)(1+.0319B-.7455B^2)(X_t-5.474) = a_t(+.2587B-B^2-.2588B^3)
+preds = fore.aruma.wge(unemp.12, phi = est.unemp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
+preds = fore.aruma.wge(unemp, phi = est.unemp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((unemp[(length(unemp)-6+1)] - preds$f)^2)
+ASE # 0.002307583
+
+# Short-term Signal-Plus Noise for unemp
+wbg.boot.wge(unemp) # p-value 0.188 <- FTR
+# Therefore, we will fit the above models only instead of continuing to look for a linear signal.
+
+
+
 
 # TODO: ALEX
 # 4b. Fitting VAR model
