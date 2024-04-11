@@ -5,17 +5,17 @@ date: "2024-04-04"
 output: html_document
 ---
 
-TODO: ALEX
-```{r setup}
+```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
-
-# TO DO: FIX WHAT IS DISPLAYED IN THE FINAL RMD FILE (FOR EXAMPLE, REMOVE WARNING MESSAGES FROM LIBRARY LOADS)
 
 library(tswge)
 library(vars)
 library(nnfor)
 library(GGally)
+library(RColorBrewer)
 
+
+# TODO: ALEX
 # Loading the Key Economic Indicators data (downloaded from 
 # https://data.texas.gov/dataset/Key-Economic-Indicators/karz-jr5v/about_data)
 kei = read.csv("Data/Key_Economic_Indicators_20240401.csv", header = TRUE)
@@ -64,6 +64,7 @@ cpi_ts_test_s = ts(data = df_test_s$cpi, start = c(2023,9), frequency = 12)
 unemp_ts_test_s = ts(data = df_test_s$unemp, start = c(2023,9), frequency = 12)
 home_price_ts_test_s = ts(data = df_test_s$home_price, start = c(2023,9), frequency = 12)
 
+
 # Training and test set for long term forecast (5 years)
 
 # Data Frame
@@ -81,46 +82,66 @@ cpi_ts_test_l = ts(data = df_test_l$cpi, start = c(2019,3), frequency = 12)
 unemp_ts_test_l = ts(data = df_test_l$unemp, start = c(2019,3), frequency = 12)
 home_price_ts_test_l = ts(data = df_test_l$home_price, start = c(2019,3), frequency = 12)
 
-```
 
-TODO: JAE
-```{r}
+# TODO: JAE
 # 4a. Fitting ARMA / ARIMA / ARUMA / Signal Plus Noise (univariate analysis)
-```
 
-TODO: ALEX
-```{r}
+
+# TODO: ALEX
 # 4b. Fitting VAR model
-# TO DO: very basic model, need to refine it
-VARselect(df, type = "none")
-var_fit=VAR(df,p=2,type="none")
-var_fit
-```
+# TO DO: 
+# - Basic model, need to refine it
+# - Need to use prediction for home prices and inflation
+# - Need to move some of the code to part 5 and 6
 
-TODO: ALEX
-```{r}
+# Short term
+VARselect(df_train_s, type = "none")
+var_fit_s=VAR(df_train_s,p=2,type="none")
+var_fit_s
+
+preds_var_s = predict(var_fit_s,n.ahead= 6)
+ASE_var_s = mean((df_test_s$home_price[1:6] - preds_var_s$fcst$home_price[1:6])^2)
+ASE_var_s
+fanchart(preds_var_s, colors = brewer.pal(n = 6, name = "Blues"))
+
+# Long term
+VARselect(df_train_l, type = "none")
+var_fit_l=VAR(df_train_l,p=2,type="none")
+var_fit_l
+
+preds_var_l = predict(var_fit_l,n.ahead= 60)
+ASE_var_l = mean((df_test_l$home_price[1:60] - preds_var_l$fcst$home_price[1:60])^2)
+ASE_var_l
+
+fanchart(preds_var_l, colors = brewer.pal(n = 6, name = "Blues"))
+
+
+
+
+
+
+# TODO: ALEX
 # 4c. Fitting Neural Network (mlp) model
-
 # TO DO: very basic model, need to refine it
-mlp_fit = mlp(home_price_ts, xreg = data.frame(cpi_ts, unemp_ts))
-mlp_fit
-```
+mlp_fit_short = mlp(home_price_ts_train_s, xreg = data.frame(cpi_ts_train_s, unemp_ts_train_s))
+mlp_fit_short
 
-TODO: JAE
-```{r}
+mlp_fit_long = mlp(home_price_ts_train_l, xreg = data.frame(cpi_ts_train_l, unemp_ts_train_l))
+mlp_fit_long
+
+# TODO: JAE
 # 4d. Fitting Ensemble model using at least two of the above. 
-```
 
-Waiting until we have fleshed out the models
-```{r}
+
+# Waiting until we have fleshed out the models
 # 5. Pick a short and long term forecast horizon based on your “problem” from part 3 above and compare all models with the ASE and the rolling window RMSE for both the short and long term forecasts 
 # Short term: 6 months
 # Long term: 5 years
 
-```
 
-Waiting until we have fleshed out the models
-```{r}
+
+
+# Waiting until we have fleshed out the models
 # 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
 # Waiting until we have fleshed out the models
 ```
