@@ -6,14 +6,13 @@ output: html_document
 ---
 
 ```{r setup, include=TRUE}
-knitr::opts_chunk$set(echo = TRUE)
 
+# Loading the libraries
 library(tswge)
 library(vars)
 library(nnfor)
 library(GGally)
 library(RColorBrewer)
-
 
 # TODO: ALEX
 # Loading the Key Economic Indicators data (downloaded from 
@@ -158,7 +157,7 @@ wbg.boot.wge(unemp) # p-value 0.188 <- FTR
 # 4b. Fitting VAR model
 # TO DO: 
 # - Basic model, need to refine it
-# - Need to use prediction for home prices and inflation
+# - Need to use prediction for home prices and inflation - use the best univariate model
 # - Need to move some of the code to part 5 and 6
 
 # Short term
@@ -167,20 +166,28 @@ var_fit_s=VAR(df_train_s,p=2,type="none")
 var_fit_s
 
 preds_var_s = predict(var_fit_s,n.ahead= 6)
+
 ASE_var_s = mean((df_test_s$home_price[1:6] - preds_var_s$fcst$home_price[1:6])^2)
 ASE_var_s
-fanchart(preds_var_s, colors = brewer.pal(n = 6, name = "Blues"))
+
+# DISCUSS: Checking that ASE makes sense
+sqrt(ASE_var_s)
+preds_var_s$fcst$home_price
+df_test_s$home_price
+
+# fanchart(preds_var_s, colors = brewer.pal(n = 6, name = "Blues"))
 
 # Long term
 VARselect(df_train_l, type = "none")
 var_fit_l=VAR(df_train_l,p=2,type="none")
 var_fit_l
 
+
 preds_var_l = predict(var_fit_l,n.ahead= 60)
 ASE_var_l = mean((df_test_l$home_price[1:60] - preds_var_l$fcst$home_price[1:60])^2)
 ASE_var_l
 
-fanchart(preds_var_l, colors = brewer.pal(n = 6, name = "Blues"))
+# fanchart(preds_var_l, colors = brewer.pal(n = 6, name = "Blues"))
 
 
 
