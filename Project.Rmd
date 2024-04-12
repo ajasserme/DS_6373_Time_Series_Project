@@ -37,14 +37,21 @@ home_price_ts = ts(data = home_price, start = c(2007,1), frequency = 12)
 
 # Plotting the data
 plotts.sample.wge(cpi_ts)
+# We observe a mostly increasing trend with the main frequency close to 0
+
 plotts.sample.wge(unemp_ts)
+# We observed 2 peaks: one during the financial crisis of 2008 and one during the Covid pandemic
+
 plotts.sample.wge(home_price_ts)
+# We observe a mostly increasing trends but with seasonal factors (prices are traditionally higher in summer)
 
 # Creating a data frame:
 df = data.frame(cpi, unemp, home_price)
 
 # Looking at the data pairs
 ggpairs(df)
+# Home prices and inflation (via CPI index) are strongly positively correlated
+# Home prices and unemployement are negatively correlated
 
 # Training and test set for short term forecast (6 months)
 
@@ -91,6 +98,8 @@ est.cpi = est.arma.wge(df_train_s$cpi, p = 4, q = 2)
 preds = fore.arma.wge(df_train_s$cpi, phi = est.cpi$phi, n.ahead = 6, lastn = TRUE)
 ASE = mean((df_test_s$cpi[(length(df_test_s$cpi)-6+1)] - preds$f)^2)
 ASE # 90.57898
+RMSE = sqrt(mean((df_test_s$cpi - preds$f[1:6])^2))
+RMSE # 10.71134
 
 # Short-term ARIMA for cpi
 cpi.d1 = artrans.wge(df_train_s$cpi, phi.tr = 1)
@@ -99,6 +108,8 @@ est.cpi.d1 = est.arma.wge(cpi.d1, p = 2, q = 1)
 preds = fore.arima.wge(df_train_s$cpi, phi = est.cpi.d1$phi, d = 1, n.ahead = 6, lastn = F)
 ASE = mean((df_test_s$cpi[(length(df_test_s$cpi)-6+1)] - preds$f)^2)
 ASE # 1.446768
+RMSE = sqrt(mean((df_test_s$cpi - preds$f[1:6])^2))
+RMSE # 2.734241
 
 # Short-term ARUMA for cpi
 cpi.12 = artrans.wge(cpi.d1, phi.tr = c(rep(0,11),1))
@@ -107,6 +118,8 @@ est.cpi12 = est.arma.wge(cpi.12, p = 2, q = 1)
 preds = fore.aruma.wge(df_train_s$cpi, phi = est.cpi12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
 ASE = mean((df_test_s$cpi[(length(df_test_s$cpi)-6+1)] - preds$f)^2)
 ASE # 2.798647
+RMSE = sqrt(mean((df_test_s$cpi - preds$f[1:6])^2))
+RMSE # 2.396974
 
 # Short-term Signal-Plus Noise for cpi
 wbg.boot.wge(df_train_s$cpi) # p-value 0.05263 <- FTR
@@ -123,6 +136,8 @@ est.unemp = est.arma.wge(df_train_s$unemp, p = 1, q = 1)
 preds = fore.arma.wge(df_train_s$unemp, phi = est.unemp$phi, n.ahead = 6, lastn = TRUE)
 ASE = mean((df_test_s$unemp[(length(df_test_s$unemp)-6+1)] - preds$f)^2)
 ASE # 0.306961
+RMSE = sqrt(mean((df_test_s$unemp - preds$f[1:6])^2))
+RMSE # 0.5540406
 
 # Short-term ARIMA for unemp
 unemp.d1 = artrans.wge(df_train_s$unemp, phi.tr = 1)
@@ -131,6 +146,8 @@ est.unemp.d1 = est.arma.wge(unemp.d1, p = 3, q = 1)
 preds = fore.arima.wge(df_train_s$unemp, phi = est.unemp.d1$phi, d = 1, n.ahead = 6, lastn = F)
 ASE = mean((df_test_s$unemp[(length(df_test_s$unemp)-6+1)] - preds$f)^2)
 ASE # 0.001935331
+RMSE = sqrt(mean((df_test_s$unemp - preds$f[1:6])^2))
+RMSE # 0.0439924
 
 # Short-term ARUMA for unemp
 unemp.12 = artrans.wge(unemp.d1, phi.tr = c(rep(0,11),1))
@@ -139,6 +156,8 @@ est.unemp.12 = est.arma.wge(unemp.12, p = 2, q = 3)
 preds = fore.aruma.wge(df_train_s$unemp, phi = est.unemp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
 ASE = mean((df_test_s$unemp[(length(df_test_s$unemp)-6+1)] - preds$f)^2)
 ASE # 0.05166667
+RMSE = sqrt(mean((df_test_s$unemp - preds$f[1:6])^2))
+RMSE # 0.227303
 
 # Short-term Signal-Plus Noise for unemp
 wbg.boot.wge(df_train_s$unemp) # p-value 0.1954887 <- FTR
@@ -152,6 +171,8 @@ est.hp = est.arma.wge(df_train_s$home_price, p = 2, q = 3)
 preds = fore.arma.wge(df_train_s$home_price, phi = est.hp$phi, n.ahead = 6, lastn = TRUE)
 ASE = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
 ASE # 302887206
+RMSE = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
+RMSE # 11276.38
 
 # Short-term ARIMA for home_price
 hp.d1 = artrans.wge(df_train_s$home_price, phi.tr = 1)
@@ -160,6 +181,8 @@ est.hp.d1 = est.arma.wge(hp.d1, p = 5, q = 3)
 preds = fore.arima.wge(df_train_s$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 6, lastn = F)
 ASE = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
 ASE # 12498440
+RMSE = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
+RMSE # 5532.287
 
 # Short-term ARUMA for home_price
 hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
@@ -168,6 +191,8 @@ est.hp.12 = est.arma.wge(hp.12, p = 2, q = 2)
 preds = fore.aruma.wge(df_train_s$home_price, phi = est.hp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
 ASE = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
 ASE # 261542338
+RMSE = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
+RMSE # 10065.17
 
 # Short-term Signal-Plus Noise for home_price
 wbg.boot.wge(df_train_s$home_price) # p-value 0.06516291 <- FTR
@@ -182,6 +207,8 @@ est.cpi = est.arma.wge(df_train_l$cpi, p = 3, q = 0)
 preds = fore.arma.wge(df_train_l$cpi, phi = est.cpi$phi, n.ahead = 60, lastn = TRUE)
 ASE = mean((df_test_l$cpi[(length(df_test_l$cpi)-60+1)] - preds$f)^2)
 ASE # 333.8962
+RMSE = sqrt(mean((df_test_l$cpi - preds$f[1:60])^2))
+RMSE # 43.68068
 
 # Long-term ARIMA for cpi
 cpi.d1 = artrans.wge(df_train_l$cpi, phi.tr = 1)
@@ -190,6 +217,8 @@ est.cpi.d1 = est.arma.wge(cpi.d1, p = 2, q = 2)
 preds = fore.arima.wge(df_train_l$cpi, phi = est.cpi.d1$phi, d = 1, n.ahead = 60, lastn = F)
 ASE = mean((df_test_l$cpi[(length(df_test_l$cpi)-60+1)] - preds$f)^2)
 ASE # 0.2092139
+RMSE = sqrt(mean((df_test_l$cpi - preds$f[1:60])^2))
+RMSE # 27.76933
 
 # Long-term ARUMA for cpi
 cpi.12 = artrans.wge(cpi.d1, phi.tr = c(rep(0,11),1))
@@ -198,6 +227,8 @@ est.cpi12 = est.arma.wge(cpi.12, p = 3, q = 1)
 preds = fore.aruma.wge(df_train_l$cpi, phi = est.cpi12$phi, s = 12, d = 1, n.ahead = 60, lastn = F)
 ASE = mean((df_test_l$cpi[(length(df_test_l$cpi)-60+1)] - preds$f)^2)
 ASE # 408.5312
+RMSE = sqrt(mean((df_test_l$cpi - preds$f[1:60])^2))
+RMSE # 47.84829
 
 # Long-term Signal-Plus Noise for cpi
 wbg.boot.wge(df_train_l$cpi) # p-value 0 <- Reject
@@ -210,6 +241,8 @@ est.unemp = est.arma.wge(df_train_l$unemp, p = 2, q = 1)
 preds = fore.arma.wge(df_train_l$unemp, phi = est.unemp$phi, n.ahead = 60, lastn = TRUE)
 ASE = mean((df_test_l$unemp[(length(df_test_l$unemp)-60+1)] - preds$f)^2)
 ASE # 5.683878
+RMSE = sqrt(mean((df_test_l$unemp - preds$f[1:60])^2))
+RMSE # 2.350637
 
 # Long-term ARIMA for unemp
 unemp.d1 = artrans.wge(df_train_l$unemp, phi.tr = 1)
@@ -218,6 +251,8 @@ est.unemp.d1 = est.arma.wge(unemp.d1, p = 1, q = 1)
 preds = fore.arima.wge(df_train_l$unemp, phi = est.unemp.d1$phi, d = 1, n.ahead = 60, lastn = F)
 ASE = mean((df_test_l$unemp[(length(df_test_l$unemp)-60+1)] - preds$f)^2)
 ASE # 0.1330498
+RMSE = sqrt(mean((df_test_l$unemp - preds$f[1:60])^2))
+RMSE # 2.732234
 
 # Long-term ARUMA for unemp
 unemp.12 = artrans.wge(unemp.d1, phi.tr = c(rep(0,11),1))
@@ -226,6 +261,8 @@ est.unemp.12 = est.arma.wge(unemp.12, p = 2, q = 0)
 preds = fore.aruma.wge(df_train_l$unemp, phi = est.unemp.12$phi, s = 12, d = 1, n.ahead = 60, lastn = F)
 ASE = mean((df_test_l$unemp[(length(df_test_l$unemp)-60+1)] - preds$f)^2)
 ASE # 1.336393
+RMSE = sqrt(mean((df_test_l$unemp - preds$f[1:60])^2))
+RMSE # 3.116287
 
 # Long-term Signal-Plus Noise for unemp
 wbg.boot.wge(df_train_l$unemp) # p-value 0.28070818 <- FTR
@@ -239,6 +276,8 @@ est.hp = est.arma.wge(df_train_l$home_price, p = 1, q = 0)
 preds = fore.arma.wge(df_train_l$home_price, phi = est.hp$phi, n.ahead = 60, lastn = TRUE)
 ASE = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
 ASE # 4583718241
+RMSE = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
+RMSE # 137303.5
 
 # Long-term ARIMA for home_price
 hp.d1 = artrans.wge(df_train_l$home_price, phi.tr = 1)
@@ -247,6 +286,8 @@ est.hp.d1 = est.arma.wge(hp.d1, p = 2, q = 3)
 preds = fore.arima.wge(df_train_l$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 60, lastn = F)
 ASE = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
 ASE # 62540456
+RMSE = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
+RMSE # 79954.15
 
 # Long-term ARUMA for home_price
 hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
@@ -255,10 +296,11 @@ est.hp.12 = est.arma.wge(hp.12, p = 2, q = 3)
 preds = fore.aruma.wge(df_train_l$home_price, phi = est.hp.12$phi, s = 12, d = 1, n.ahead = 60, lastn = F)
 ASE = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
 ASE # 278490092
+RMSE = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
+RMSE # 59072.12
 
 # Long-term Signal-Plus Noise for unemp
 wbg.boot.wge(df_train_l$home_price) # p-value 0.03508772 <- Reject
-
 
 
 
@@ -311,6 +353,11 @@ mlp_fit_long
 
 # TODO: JAE
 # 4d. Fitting Ensemble model using at least two of the above. 
+ensemble = (preds_var_l$fcst$cpi[,1] + mlp_fit_long$fitted)/2
+ensemble
+ASE.ensemble = mean((df_test_l$home_price[1:60] - ensemble)^2)
+ASE.ensemble # 43293525344
+
 
 
 # Waiting until we have fleshed out the models
@@ -324,4 +371,5 @@ mlp_fit_long
 # Waiting until we have fleshed out the models
 # 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
 # Waiting until we have fleshed out the models
+
 ```
