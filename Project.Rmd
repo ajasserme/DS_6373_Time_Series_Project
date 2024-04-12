@@ -86,33 +86,30 @@ home_price_ts_test_l = ts(data = df_test_l$home_price, start = c(2019,3), freque
 # 4a. Fitting ARMA / ARIMA / ARUMA / Signal Plus Noise (univariate analysis)
 
 # Short-term ARMA for cpi
-aic5.wge(cpi, p = 0:5, q = 0:3)
-est.cpi = est.arma.wge(cpi, p = 4, q = 2)
-mean(cpi)
-preds = fore.arma.wge(cpi, phi = est.cpi$phi, n.ahead = 6, lastn = TRUE)
-ASE = mean((cpi[(length(cpi)-6+1)] - preds$f)^2)
-ASE # 3.926501
+aic5.wge(df_train_s$cpi, p = 0:5, q = 0:3)
+est.cpi = est.arma.wge(df_train_s$cpi, p = 4, q = 2)
+preds = fore.arma.wge(df_train_s$cpi, phi = est.cpi$phi, n.ahead = 6, lastn = TRUE)
+ASE = mean((df_test_s$cpi[(length(df_test_s$cpi)-6+1)] - preds$f)^2)
+ASE # 90.57898
 
 # Short-term ARIMA for cpi
-cpi.d1 = artrans.wge(cpi, phi.tr = 1)
+cpi.d1 = artrans.wge(df_train_s$cpi, phi.tr = 1)
 aic5.wge(cpi.d1, p = 0:5, q = 0:3)
-est.cpi.d1 = est.arma.wge(cpi.d1, p = 2, q = 3)
-preds = fore.arima.wge(cpi.d1, phi = est.cpi.d1$phi, d = 1, n.ahead = 6, lastn = F)
-preds = fore.arima.wge(cpi, phi = est.cpi.d1$phi, d = 1, n.ahead = 6, lastn = F)
-ASE = mean((cpi[(length(cpi)-6+1)] - preds$f)^2)
-ASE # 7.397674
+est.cpi.d1 = est.arma.wge(cpi.d1, p = 2, q = 1)
+preds = fore.arima.wge(df_train_s$cpi, phi = est.cpi.d1$phi, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((df_test_s$cpi[(length(df_test_s$cpi)-6+1)] - preds$f)^2)
+ASE # 1.446768
 
 # Short-term ARUMA for cpi
 cpi.12 = artrans.wge(cpi.d1, phi.tr = c(rep(0,11),1))
 aic5.wge(cpi.12, p = 0:5, q = 0:3)
 est.cpi12 = est.arma.wge(cpi.12, p = 2, q = 1)
-preds = fore.aruma.wge(cpi.12, phi = est.cpi12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
-preds = fore.aruma.wge(cpi, phi = est.cpi12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
-ASE = mean((cpi[(length(cpi)-6+1)] - preds$f)^2)
-ASE # 74.62757
+preds = fore.aruma.wge(df_train_s$cpi, phi = est.cpi12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((df_test_s$cpi[(length(df_test_s$cpi)-6+1)] - preds$f)^2)
+ASE # 2.798647
 
 # Short-term Signal-Plus Noise for cpi
-wbg.boot.wge(cpi) # p-value 0.068 <- FTR
+wbg.boot.wge(df_train_s$cpi) # p-value 0.05263 <- FTR
 # Therefore, we will fit the above models only instead of continuing to look for a linear signal.
 #xa = slr.wge(cpi)
 #xa$res
@@ -121,34 +118,147 @@ wbg.boot.wge(cpi) # p-value 0.068 <- FTR
 
 
 # Short-term ARMA for unemp
-aic5.wge(unemp, p = 0:5, q = 0:3)
-est.unemp = est.arma.wge(unemp, p = 1, q = 1)
-mean(unemp) # (1-.913B)(X_t - 5.474) = a_t(1+.282B)
-preds = fore.arma.wge(unemp, phi = est.unemp$phi, n.ahead = 6, lastn = TRUE)
-ASE = mean((unemp[(length(unemp)-6+1)] - preds$f)^2)
-ASE # 0.2174931
+aic5.wge(df_train_s$unemp, p = 0:5, q = 0:3)
+est.unemp = est.arma.wge(df_train_s$unemp, p = 1, q = 1)
+preds = fore.arma.wge(df_train_s$unemp, phi = est.unemp$phi, n.ahead = 6, lastn = TRUE)
+ASE = mean((df_test_s$unemp[(length(df_test_s$unemp)-6+1)] - preds$f)^2)
+ASE # 0.306961
 
 # Short-term ARIMA for unemp
-unemp.d1 = artrans.wge(unemp, phi.tr = 1)
+unemp.d1 = artrans.wge(df_train_s$unemp, phi.tr = 1)
 aic5.wge(unemp.d1, p = 0:5, q = 0:3)
-est.unemp.d1 = est.arma.wge(unemp.d1, p = 2, q = 2) # (1-B)(1-.6192B-.2785B^2)(X_t - 5.474) = a_t(1-.4423B-.5577B^2)
-preds = fore.arima.wge(unemp.d1, phi = est.unemp.d1$phi, d = 1, n.ahead = 6, lastn = F)
-preds = fore.arima.wge(unemp, phi = est.unemp.d1$phi, d = 1, n.ahead = 6, lastn = F)
-ASE = mean((unemp[(length(unemp)-6+1)] - preds$f)^2)
-ASE # 6.968271e-30
+est.unemp.d1 = est.arma.wge(unemp.d1, p = 3, q = 1)
+preds = fore.arima.wge(df_train_s$unemp, phi = est.unemp.d1$phi, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((df_test_s$unemp[(length(df_test_s$unemp)-6+1)] - preds$f)^2)
+ASE # 0.001935331
 
 # Short-term ARUMA for unemp
 unemp.12 = artrans.wge(unemp.d1, phi.tr = c(rep(0,11),1))
 aic5.wge(unemp.12, p = 0:5, q = 0:3)
-est.unemp.12 = est.arma.wge(unemp.12, p = 2, q = 3) # (1-B)(1-B^12)(1+.0319B-.7455B^2)(X_t-5.474) = a_t(+.2587B-B^2-.2588B^3)
-preds = fore.aruma.wge(unemp.12, phi = est.unemp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
-preds = fore.aruma.wge(unemp, phi = est.unemp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
-ASE = mean((unemp[(length(unemp)-6+1)] - preds$f)^2)
-ASE # 0.002307583
+est.unemp.12 = est.arma.wge(unemp.12, p = 2, q = 3)
+preds = fore.aruma.wge(df_train_s$unemp, phi = est.unemp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((df_test_s$unemp[(length(df_test_s$unemp)-6+1)] - preds$f)^2)
+ASE # 0.05166667
 
 # Short-term Signal-Plus Noise for unemp
-wbg.boot.wge(unemp) # p-value 0.188 <- FTR
+wbg.boot.wge(df_train_s$unemp) # p-value 0.1954887 <- FTR
 # Therefore, we will fit the above models only instead of continuing to look for a linear signal.
+
+
+
+# Short-term ARMA for home_price
+aic5.wge(df_train_s$home_price, p = 0:5, q = 0:3)
+est.hp = est.arma.wge(df_train_s$home_price, p = 2, q = 3)
+preds = fore.arma.wge(df_train_s$home_price, phi = est.hp$phi, n.ahead = 6, lastn = TRUE)
+ASE = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
+ASE # 302887206
+
+# Short-term ARIMA for home_price
+hp.d1 = artrans.wge(df_train_s$home_price, phi.tr = 1)
+aic5.wge(hp.d1, p = 0:5, q = 0:3)
+est.hp.d1 = est.arma.wge(hp.d1, p = 5, q = 3)
+preds = fore.arima.wge(df_train_s$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
+ASE # 12498440
+
+# Short-term ARUMA for home_price
+hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
+aic5.wge(hp.12, p = 0:5, q = 0:3)
+est.hp.12 = est.arma.wge(hp.12, p = 2, q = 2)
+preds = fore.aruma.wge(df_train_s$home_price, phi = est.hp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
+ASE = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
+ASE # 261542338
+
+# Short-term Signal-Plus Noise for home_price
+wbg.boot.wge(df_train_s$home_price) # p-value 0.06516291 <- FTR
+# Therefore, we will fit the above models only instead of continuing to look for a linear signal.
+
+
+
+
+# Long-term ARMA for cpi
+aic5.wge(df_train_l$cpi, p = 0:5, q = 0:3)
+est.cpi = est.arma.wge(df_train_l$cpi, p = 3, q = 0)
+preds = fore.arma.wge(df_train_l$cpi, phi = est.cpi$phi, n.ahead = 60, lastn = TRUE)
+ASE = mean((df_test_l$cpi[(length(df_test_l$cpi)-60+1)] - preds$f)^2)
+ASE # 333.8962
+
+# Long-term ARIMA for cpi
+cpi.d1 = artrans.wge(df_train_l$cpi, phi.tr = 1)
+aic5.wge(cpi.d1, p = 0:5, q = 0:3)
+est.cpi.d1 = est.arma.wge(cpi.d1, p = 2, q = 2)
+preds = fore.arima.wge(df_train_l$cpi, phi = est.cpi.d1$phi, d = 1, n.ahead = 60, lastn = F)
+ASE = mean((df_test_l$cpi[(length(df_test_l$cpi)-60+1)] - preds$f)^2)
+ASE # 0.2092139
+
+# Long-term ARUMA for cpi
+cpi.12 = artrans.wge(cpi.d1, phi.tr = c(rep(0,11),1))
+aic5.wge(cpi.12, p = 0:5, q = 0:3)
+est.cpi12 = est.arma.wge(cpi.12, p = 3, q = 1)
+preds = fore.aruma.wge(df_train_l$cpi, phi = est.cpi12$phi, s = 12, d = 1, n.ahead = 60, lastn = F)
+ASE = mean((df_test_l$cpi[(length(df_test_l$cpi)-60+1)] - preds$f)^2)
+ASE # 408.5312
+
+# Long-term Signal-Plus Noise for cpi
+wbg.boot.wge(df_train_l$cpi) # p-value 0 <- Reject
+
+
+
+# Long-term ARMA for unemp
+aic5.wge(df_train_l$unemp, p = 0:5, q = 0:3)
+est.unemp = est.arma.wge(df_train_l$unemp, p = 2, q = 1)
+preds = fore.arma.wge(df_train_l$unemp, phi = est.unemp$phi, n.ahead = 60, lastn = TRUE)
+ASE = mean((df_test_l$unemp[(length(df_test_l$unemp)-60+1)] - preds$f)^2)
+ASE # 5.683878
+
+# Long-term ARIMA for unemp
+unemp.d1 = artrans.wge(df_train_l$unemp, phi.tr = 1)
+aic5.wge(unemp.d1, p = 0:5, q = 0:3)
+est.unemp.d1 = est.arma.wge(unemp.d1, p = 1, q = 1)
+preds = fore.arima.wge(df_train_l$unemp, phi = est.unemp.d1$phi, d = 1, n.ahead = 60, lastn = F)
+ASE = mean((df_test_l$unemp[(length(df_test_l$unemp)-60+1)] - preds$f)^2)
+ASE # 0.1330498
+
+# Long-term ARUMA for unemp
+unemp.12 = artrans.wge(unemp.d1, phi.tr = c(rep(0,11),1))
+aic5.wge(unemp.12, p = 0:5, q = 0:3)
+est.unemp.12 = est.arma.wge(unemp.12, p = 2, q = 0)
+preds = fore.aruma.wge(df_train_l$unemp, phi = est.unemp.12$phi, s = 12, d = 1, n.ahead = 60, lastn = F)
+ASE = mean((df_test_l$unemp[(length(df_test_l$unemp)-60+1)] - preds$f)^2)
+ASE # 1.336393
+
+# Long-term Signal-Plus Noise for unemp
+wbg.boot.wge(df_train_l$unemp) # p-value 0.28070818 <- FTR
+# Therefore, we will fit the above models only instead of continuing to look for a linear signal.
+
+
+
+# Long-term ARMA for home_price
+aic5.wge(df_train_l$home_price, p = 0:5, q = 0:3)
+est.hp = est.arma.wge(df_train_l$home_price, p = 1, q = 0)
+preds = fore.arma.wge(df_train_l$home_price, phi = est.hp$phi, n.ahead = 60, lastn = TRUE)
+ASE = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
+ASE # 4583718241
+
+# Long-term ARIMA for home_price
+hp.d1 = artrans.wge(df_train_l$home_price, phi.tr = 1)
+aic5.wge(hp.d1, p = 0:5, q = 0:3)
+est.hp.d1 = est.arma.wge(hp.d1, p = 2, q = 3)
+preds = fore.arima.wge(df_train_l$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 60, lastn = F)
+ASE = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
+ASE # 62540456
+
+# Long-term ARUMA for home_price
+hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
+aic5.wge(hp.12, p = 0:5, q = 0:3)
+est.hp.12 = est.arma.wge(hp.12, p = 2, q = 3)
+preds = fore.aruma.wge(df_train_l$home_price, phi = est.hp.12$phi, s = 12, d = 1, n.ahead = 60, lastn = F)
+ASE = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
+ASE # 278490092
+
+# Long-term Signal-Plus Noise for unemp
+wbg.boot.wge(df_train_l$home_price) # p-value 0.03508772 <- Reject
+
 
 
 
@@ -170,10 +280,6 @@ preds_var_s = predict(var_fit_s,n.ahead= 6)
 ASE_var_s = mean((df_test_s$home_price[1:6] - preds_var_s$fcst$home_price[1:6])^2)
 ASE_var_s
 
-# DISCUSS: Checking that ASE makes sense
-sqrt(ASE_var_s)
-preds_var_s$fcst$home_price
-df_test_s$home_price
 
 # fanchart(preds_var_s, colors = brewer.pal(n = 6, name = "Blues"))
 
