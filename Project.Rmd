@@ -14,6 +14,9 @@ library(nnfor)
 library(GGally)
 library(RColorBrewer)
 
+# Setting seed for consistent results
+set.seed(456)
+
 # TODO: ALEX
 # Loading the Key Economic Indicators data (downloaded from 
 # https://data.texas.gov/dataset/Key-Economic-Indicators/karz-jr5v/about_data)
@@ -309,7 +312,6 @@ wbg.boot.wge(df_train_l$home_price) # p-value 0.03508772 <- Reject
 # 4b. Fitting VAR model
 # TO DO: 
 # - Basic model, need to refine it
-# - Need to use prediction for home prices and inflation - use the best univariate model
 # - Need to move some of the code to part 5 and 6
 
 # Short term
@@ -345,15 +347,50 @@ ASE_var_l
 # TODO: ALEX
 # 4c. Fitting Neural Network (mlp) model
 # TO DO: very basic model, need to refine it
-mlp_fit_short = mlp(home_price_ts_train_s, xreg = data.frame(cpi_ts_train_s, unemp_ts_train_s))
-mlp_fit_short
 
-mlp_fit_long = mlp(home_price_ts_train_l, xreg = data.frame(cpi_ts_train_l, unemp_ts_train_l))
-mlp_fit_long
+# Short term
+
+# Forecasting unemployment and CPI
+mlp_fit_unemp_short = mlp(unemp_ts_train_s, reps = 50, comb = "median")
+fore_mlp_unemp_short = forecast(mlp_fit_unemp_short, h = 6)
+mlp_fit_cpi_short = mlp(cpi_ts_train_s, reps = 50, comb = "median")
+fore_mlp_cpi_short = forecast(mlp_fit_cpi_short, h = 6)
+
+mlp_fit_short = mlp(home_price_ts_train_s, xreg = data.frame(cpi = cpi_ts_train_s, unemp = unemp_ts_train_s))
+
+df_original = data.frame(cpi = df_train_s$cpi, unemp = df_train_s$unemp)
+df_fore_s = data.frame(cpi = fore_mlp_cpi_short$mean, unemp = fore_mlp_unemp_short$mean)
+
+forecast_mlp_short = forecast(mlp_fit_short, h=6, xreg = rbind(df_original, df_fore_s))
+
+plot(df_test_s$home_price[1:6],type = "l")
+lines(seq(1,6),forecast_mlp_short$mean, col = "blue")
+ASE = mean((df_test_s$home_price[1:6]-forecast_mlp_short$mean)^2)
+ASE
+
+# Long term
+
+# Forecasting unemployment and CPI
+mlp_fit_unemp_long = mlp(unemp_ts_train_l, reps = 50, comb = "median")
+fore_mlp_unemp_long = forecast(mlp_fit_unemp_long, h = 60)
+mlp_fit_cpi_long = mlp(cpi_ts_train_l, reps = 50, comb = "median")
+fore_mlp_cpi_long = forecast(mlp_fit_cpi_long, h = 60)
+
+mlp_fit_long = mlp(home_price_ts_train_l, xreg = data.frame(cpi = cpi_ts_train_l, unemp = unemp_ts_train_l))
+
+df_original = data.frame(cpi = df_train_l$cpi, unemp = df_train_l$unemp)
+df_fore_l = data.frame(cpi = fore_mlp_cpi_long$mean, unemp = fore_mlp_unemp_long$mean)
+
+forecast_mlp_long = forecast(mlp_fit_long, h=60, xreg = rbind(df_original, df_fore_l))
+
+plot(df_test_l$home_price[1:60],type = "l")
+lines(seq(1,60),forecast_mlp_long$mean, col = "blue")
+ASE = mean((df_test_l$home_price[1:60]-forecast_mlp_long$mean)^2)
+ASE
 
 # TODO: JAE
 # 4d. Fitting Ensemble model using at least two of the above. 
-ensemble = (preds_var_l$fcst$cpi[,1] + mlp_fit_long$fitted)/2
+ensemble = (preds_var_l$fcst$cpi[,1] + forecast_mlp_long$mean)/2
 ensemble
 ASE.ensemble = mean((df_test_l$home_price[1:60] - ensemble)^2)
 ASE.ensemble # 43293525344
