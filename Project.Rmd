@@ -125,10 +125,6 @@ RMSE # 2.396974
 # Short-term Signal-Plus Noise for cpi
 wbg.boot.wge(df_train_s$cpi) # p-value 0.05263 <- FTR
 # Therefore, we will fit the above models only instead of continuing to look for a linear signal.
-#xa = slr.wge(cpi)
-#xa$res
-#xa.aic = aic.burg.wge(xa$res, p = 1:5)
-
 
 
 # Short-term ARMA for unemp
@@ -165,15 +161,14 @@ wbg.boot.wge(df_train_s$unemp) # p-value 0.1954887 <- FTR
 # Therefore, we will fit the above models only instead of continuing to look for a linear signal.
 
 
-
 # Short-term ARMA for home_price
 aic5.wge(df_train_s$home_price, p = 0:5, q = 0:3)
 est.hp = est.arma.wge(df_train_s$home_price, p = 2, q = 3)
 preds = fore.arma.wge(df_train_s$home_price, phi = est.hp$phi, n.ahead = 6, lastn = TRUE)
 ASE_ARMA_S = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
 ASE_ARMA_S # 302887206
-RMSE_ARMA_S = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
-RMSE_ARMA_S # 11276.38
+RW_RMSE_ARMA_S = roll.win.rmse.wge(df_train_s$home_price, horizon = 6, phi = est.hp$phi)
+RW_RMSE_ARMA_S # 10761.056
 
 # Short-term ARIMA for home_price
 hp.d1 = artrans.wge(df_train_s$home_price, phi.tr = 1)
@@ -182,8 +177,8 @@ est.hp.d1 = est.arma.wge(hp.d1, p = 5, q = 3)
 preds_ARIMA_S = fore.arima.wge(df_train_s$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 6, lastn = F)
 ASE_ARIMA_S = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds_ARIMA_S$f)^2)
 ASE_ARIMA_S # 12498440
-RMSE_ARIMA_S = sqrt(mean((df_test_s$home_price - preds_ARIMA_S$f[1:6])^2))
-RMSE_ARIMA_S # 5532.287
+RW_RMSE_ARIMA_S = roll.win.rmse.wge(df_train_s$home_price, horizon = 6, d=1, phi = est.hp.d1$phi)
+RW_RMSE_ARIMA_S # 9854.404
 
 # Short-term ARUMA for home_price
 hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
@@ -192,8 +187,8 @@ est.hp.12 = est.arma.wge(hp.12, p = 2, q = 2)
 preds = fore.aruma.wge(df_train_s$home_price, phi = est.hp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
 ASE_ARUMA_S = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
 ASE_ARUMA_S # 261542338
-RMSE_ARUMA_S = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
-RMSE_ARUMA_S # 10065.17
+RW_RMSE_ARUMA_S = roll.win.rmse.wge(df_train_s$home_price, horizon = 6, s=12, d=1, phi = est.hp$phi)
+RW_RMSE_ARUMA_S # 8650.16
 
 # Short-term Signal-Plus Noise for home_price
 wbg.boot.wge(df_train_s$home_price) # p-value 0.06516291 <- FTR
@@ -233,7 +228,6 @@ RMSE # 47.84829
 wbg.boot.wge(df_train_l$cpi) # p-value 0 <- Reject
 
 
-
 # Long-term ARMA for unemp
 aic5.wge(df_train_l$unemp, p = 0:5, q = 0:3)
 est.unemp = est.arma.wge(df_train_l$unemp, p = 2, q = 1)
@@ -268,15 +262,14 @@ wbg.boot.wge(df_train_l$unemp) # p-value 0.28070818 <- FTR
 # Therefore, we will fit the above models only instead of continuing to look for a linear signal.
 
 
-
 # Long-term ARMA for home_price
 aic5.wge(df_train_l$home_price, p = 0:5, q = 0:3)
 est.hp = est.arma.wge(df_train_l$home_price, p = 1, q = 0)
 preds = fore.arma.wge(df_train_l$home_price, phi = est.hp$phi, n.ahead = 60, lastn = TRUE)
 ASE_ARMA_L = mean((df_test_l$home_price[1:60] - preds$f)^2)
 ASE_ARMA_L # 4583718241
-RMSE_ARMA_L = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
-RMSE_ARMA_L # 137303.5
+RW_RMSE_ARMA_L = roll.win.rmse.wge(df_train_s$home_price, horizon = 60, phi = est.hp$phi)
+RW_RMSE_ARMA_L # 29022.996
 
 # Long-term ARIMA for home_price
 hp.d1 = artrans.wge(df_train_l$home_price, phi.tr = 1)
@@ -285,8 +278,8 @@ est.hp.d1 = est.arma.wge(hp.d1, p = 2, q = 3)
 preds_ARIMA_L = fore.arima.wge(df_train_l$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 60, lastn = F)
 ASE_ARIMA_L = mean((df_test_l$home_price[1:60] - preds_ARIMA_L$f)^2)
 ASE_ARIMA_L # 62540456
-RMSE_ARIMA_L = sqrt(mean((df_test_l$home_price - preds_ARIMA_L$f[1:60])^2))
-RMSE_ARIMA_L # 79954.15
+RW_RMSE_ARIMA_L = roll.win.rmse.wge(df_train_s$home_price, horizon = 60, d=1, phi = est.hp.d1$phi)
+RW_RMSE_ARIMA_L # 34804.298
 
 # Long-term ARUMA for home_price
 hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
@@ -295,8 +288,8 @@ est.hp.12 = est.arma.wge(hp.12, p = 2, q = 3)
 preds = fore.aruma.wge(df_train_l$home_price, phi = est.hp.12$phi, s = 12, d = 1, n.ahead = 60, lastn = F)
 ASE_ARUMA_L = mean((df_test_l$home_price[1:60] - preds$f)^2)
 ASE_ARUMA_L # 278490092
-RMSE_ARUMA_L = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
-RMSE_ARUMA_L # 59072.12
+RW_RMSE_ARUMA_L = roll.win.rmse.wge(df_train_s$home_price, horizon = 60, s=12, d=1, phi = est.hp$phi)
+RW_RMSE_ARUMA_L # 150777.681
 
 # Long-term Signal-Plus Noise for unemp
 wbg.boot.wge(df_train_l$home_price) # p-value 0.03508772 <- Reject
@@ -379,13 +372,14 @@ ASE_ENSEMBLE_L # 43293525344
 # Long term horizon: 5 years
 
 # Evaluating models for short-term forecast:
-RMSE_ARMA_S
-# 11276.38
-RMSE_ARIMA_S
-# 5532.287
-RMSE_ARUMA_S
-# 10065.17
-# ARIMA has the smallest RMSE for short-term forecast: 5532.287
+
+RW_RMSE_ARMA_S
+# 10761.06
+RW_RMSE_ARIMA_S
+# 9854.40
+RW_RMSE_ARUMA_S
+# 8650.16
+# ARUMA has the smallest RMSE for short-term forecast: 8650.16
 
 ASE_ARMA_S
 # 302887206
@@ -403,13 +397,14 @@ ASE_ENSEMBLE_S
 
 
 # Evaluating models for long-term forecast:
-RMSE_ARMA_L
-# 137303.5
-RMSE_ARIMA_L
-# 79954.15
-RMSE_ARUMA_L
-# 59072.12
-# ARUMA has the smallest RMSE for short-term forecast: 59072.12
+
+RW_RMSE_ARMA_L
+# 29023
+RW_RMSE_ARIMA_L
+# 34804.3
+RW_RMSE_ARUMA_L
+# 150777.7
+# ARMA has the smallest RMSE for short-term forecast: 29023
 
 ASE_ARMA_L
 # 18852254446
@@ -418,7 +413,7 @@ ASE_ARIMA_L
 ASE_ARUMA_L
 # 3489515518
 ASE_VAR_L
-# 3380516580
+# 1020036688
 ASE_MLP_L
 # 3873669021
 ASE_ENSEMBLE_L
