@@ -273,7 +273,7 @@ wbg.boot.wge(df_train_l$unemp) # p-value 0.28070818 <- FTR
 aic5.wge(df_train_l$home_price, p = 0:5, q = 0:3)
 est.hp = est.arma.wge(df_train_l$home_price, p = 1, q = 0)
 preds = fore.arma.wge(df_train_l$home_price, phi = est.hp$phi, n.ahead = 60, lastn = TRUE)
-ASE_ARMA_L = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
+ASE_ARMA_L = mean((df_test_l$home_price[1:60] - preds$f)^2)
 ASE_ARMA_L # 4583718241
 RMSE_ARMA_L = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
 RMSE_ARMA_L # 137303.5
@@ -283,7 +283,7 @@ hp.d1 = artrans.wge(df_train_l$home_price, phi.tr = 1)
 aic5.wge(hp.d1, p = 0:5, q = 0:3)
 est.hp.d1 = est.arma.wge(hp.d1, p = 2, q = 3)
 preds_ARIMA_L = fore.arima.wge(df_train_l$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 60, lastn = F)
-ASE_ARIMA_L = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds_ARIMA_L$f)^2)
+ASE_ARIMA_L = mean((df_test_l$home_price[1:60] - preds_ARIMA_L$f)^2)
 ASE_ARIMA_L # 62540456
 RMSE_ARIMA_L = sqrt(mean((df_test_l$home_price - preds_ARIMA_L$f[1:60])^2))
 RMSE_ARIMA_L # 79954.15
@@ -293,7 +293,7 @@ hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
 aic5.wge(hp.12, p = 0:5, q = 0:3)
 est.hp.12 = est.arma.wge(hp.12, p = 2, q = 3)
 preds = fore.aruma.wge(df_train_l$home_price, phi = est.hp.12$phi, s = 12, d = 1, n.ahead = 60, lastn = F)
-ASE_ARUMA_L = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
+ASE_ARUMA_L = mean((df_test_l$home_price[1:60] - preds$f)^2)
 ASE_ARUMA_L # 278490092
 RMSE_ARUMA_L = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
 RMSE_ARUMA_L # 59072.12
@@ -312,15 +312,13 @@ preds_var_s = predict(var_fit_s,n.ahead= 6)
 ASE_VAR_S = mean((df_test_s$home_price[1:6] - preds_var_s$fcst$home_price[1:6])^2)
 ASE_VAR_S
 
-
 # Long term
-VARselect(df_train_l, type = "none")
-var_fit_l=VAR(df_train_l,p=2,type="none")
+VARselect(df_train_l, type = "both")
+var_fit_l=VAR(df_train_l,p=2, lag.max = 6, season = 12)
 var_fit_l
 preds_var_l = predict(var_fit_l,n.ahead= 60)
 ASE_VAR_L = mean((df_test_l$home_price[1:60] - preds_var_l$fcst$home_price[1:60])^2)
 ASE_VAR_L
-
 
 # 4c. Fitting Neural Network (mlp) model
 
@@ -334,16 +332,11 @@ fore_mlp_cpi_short = forecast(mlp_fit_cpi_short, h = 6)
 
 # Fitting the model
 mlp_fit_short = mlp(home_price_ts_train_s, xreg = data.frame(cpi = cpi_ts_train_s, unemp = unemp_ts_train_s))
-
 df_original = data.frame(cpi = df_train_s$cpi, unemp = df_train_s$unemp)
 df_fore_s = data.frame(cpi = fore_mlp_cpi_short$mean, unemp = fore_mlp_unemp_short$mean)
 
 # Forecasting
 forecast_mlp_short = forecast(mlp_fit_short, h=6, xreg = rbind(df_original, df_fore_s))
-
-# Plotting
-plot(df_test_s$home_price[1:6],type = "l")
-lines(seq(1,6),forecast_mlp_short$mean, col = "blue")
 ASE_MLP_S = mean((df_test_s$home_price[1:6]-forecast_mlp_short$mean)^2)
 ASE_MLP_S
 
@@ -356,17 +349,12 @@ mlp_fit_cpi_long = mlp(cpi_ts_train_l, reps = 50, comb = "median")
 fore_mlp_cpi_long = forecast(mlp_fit_cpi_long, h = 60)
 
 # Fitting the model
-mlp_fit_long = mlp(home_price_ts_train_l, xreg = data.frame(cpi = cpi_ts_train_l, unemp = unemp_ts_train_l))
-
+mlp_fit_long = mlp(home_price_ts_train_l, allow.det.season = TRUE, reps = 50, comb = "median", xreg = data.frame(cpi = cpi_ts_train_l, unemp = unemp_ts_train_l))
 df_original = data.frame(cpi = df_train_l$cpi, unemp = df_train_l$unemp)
 df_fore_l = data.frame(cpi = fore_mlp_cpi_long$mean, unemp = fore_mlp_unemp_long$mean)
 
 # Forecasting
 forecast_mlp_long = forecast(mlp_fit_long, h=60, xreg = rbind(df_original, df_fore_l))
-
-# Plotting
-plot(df_test_l$home_price[1:60],type = "l")
-lines(seq(1,60),forecast_mlp_long$mean, col = "blue")
 ASE_MLP_L = mean((df_test_l$home_price[1:60]-forecast_mlp_long$mean)^2)
 ASE_MLP_L
 
@@ -424,23 +412,49 @@ RMSE_ARUMA_L
 # ARUMA has the smallest RMSE for short-term forecast: 59072.12
 
 ASE_ARMA_L
-# 4583718241
+# 18852254446
 ASE_ARIMA_L
-# 62540456
+# 6392665503
 ASE_ARUMA_L
-# 278490092
+# 3489515518
 ASE_VAR_L
 # 3380516580
 ASE_MLP_L
-# 4215633554
+# 3873669021
 ASE_ENSEMBLE_L
-# 5234559708
-# ARIMA has the smallest ASE for long-term forecast: 62540456
+# 5043349630
+# VAR  has the smallest ASE for long-term forecast: 3380516580
 
-# TODO: show for "best" models short/long term plot of predicted prices versus real prices
+# Plotting short-term forecast versus actual price for MLP
+plot(df_test_s$home_price[1:6],type = "l")
+lines(seq(1,6),forecast_mlp_short$mean, col = "blue")
+
+# Plotting long-term forecast versus actual price for VAR
+plot(df_test_l$home_price[1:60],type = "l")
+lines(seq(1,60), preds_var_l$fcst$home_price[,1], col = "blue")
+
 
 # 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
 
-# TODO: identify a short term and a long term model and probably train it on entire data set (instead of test set) then forecast
+# Training the model on the entire data set for short-term forecast with MLP
+# Forecasting unemployment and CPI
+mlp_fit_unemp_short = mlp(unemp_ts, reps = 50, comb = "median")
+fore_mlp_unemp_short = forecast(mlp_fit_unemp_short, h = 6)
+mlp_fit_cpi_short = mlp(cpi_ts, reps = 50, comb = "median")
+fore_mlp_cpi_short = forecast(mlp_fit_cpi_short, h = 6)
 
+# Fitting the model
+mlp_fit_short = mlp(home_price_ts, xreg = data.frame(cpi = cpi_ts, unemp = unemp_ts))
+df_original = data.frame(cpi = df$cpi, unemp = df$unemp)
+df_fore_s = data.frame(cpi = fore_mlp_cpi_short$mean, unemp = fore_mlp_unemp_short$mean)
+
+# Forecasting
+forecast_mlp_short = forecast(mlp_fit_short, h=6, xreg = rbind(df_original, df_fore_s))
+forecast_mlp_short
+
+# Training the model on the entire data set for long-term forecast with VAR
+VARselect(df, type = "both")
+var_fit=VAR(df,p=2, lag.max = 6, season = 12)
+preds_var = predict(var_fit,n.ahead= 60)
+preds_var
 ```
