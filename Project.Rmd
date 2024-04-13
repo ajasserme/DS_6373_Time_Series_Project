@@ -17,7 +17,6 @@ library(RColorBrewer)
 # Setting seed for consistent results
 set.seed(456)
 
-# TODO: ALEX
 # Loading the Key Economic Indicators data (downloaded from 
 # https://data.texas.gov/dataset/Key-Economic-Indicators/karz-jr5v/about_data)
 kei = read.csv("Data/Key_Economic_Indicators_20240401.csv", header = TRUE)
@@ -43,7 +42,7 @@ plotts.sample.wge(cpi_ts)
 # We observe a mostly increasing trend with the main frequency close to 0
 
 plotts.sample.wge(unemp_ts)
-# We observed 2 peaks: one during the financial crisis of 2008 and one during the Covid pandemic
+# We observe 2 peaks: one during the financial crisis of 2008 and one during the Covid pandemic
 
 plotts.sample.wge(home_price_ts)
 # We observe a mostly increasing trends but with seasonal factors (prices are traditionally higher in summer)
@@ -54,7 +53,7 @@ df = data.frame(cpi, unemp, home_price)
 # Looking at the data pairs
 ggpairs(df)
 # Home prices and inflation (via CPI index) are strongly positively correlated
-# Home prices and unemployement are negatively correlated
+# Home prices and unemployment are negatively correlated
 
 # Training and test set for short term forecast (6 months)
 
@@ -92,7 +91,6 @@ unemp_ts_test_l = ts(data = df_test_l$unemp, start = c(2019,3), frequency = 12)
 home_price_ts_test_l = ts(data = df_test_l$home_price, start = c(2019,3), frequency = 12)
 
 
-# TODO: JAE
 # 4a. Fitting ARMA / ARIMA / ARUMA / Signal Plus Noise (univariate analysis)
 
 # Short-term ARMA for cpi
@@ -172,36 +170,34 @@ wbg.boot.wge(df_train_s$unemp) # p-value 0.1954887 <- FTR
 aic5.wge(df_train_s$home_price, p = 0:5, q = 0:3)
 est.hp = est.arma.wge(df_train_s$home_price, p = 2, q = 3)
 preds = fore.arma.wge(df_train_s$home_price, phi = est.hp$phi, n.ahead = 6, lastn = TRUE)
-ASE = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
-ASE # 302887206
-RMSE = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
-RMSE # 11276.38
+ASE_ARMA_S = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
+ASE_ARMA_S # 302887206
+RMSE_ARMA_S = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
+RMSE_ARMA_S # 11276.38
 
 # Short-term ARIMA for home_price
 hp.d1 = artrans.wge(df_train_s$home_price, phi.tr = 1)
 aic5.wge(hp.d1, p = 0:5, q = 0:3)
 est.hp.d1 = est.arma.wge(hp.d1, p = 5, q = 3)
-preds = fore.arima.wge(df_train_s$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 6, lastn = F)
-ASE = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
-ASE # 12498440
-RMSE = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
-RMSE # 5532.287
+preds_ARIMA_S = fore.arima.wge(df_train_s$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 6, lastn = F)
+ASE_ARIMA_S = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds_ARIMA_S$f)^2)
+ASE_ARIMA_S # 12498440
+RMSE_ARIMA_S = sqrt(mean((df_test_s$home_price - preds_ARIMA_S$f[1:6])^2))
+RMSE_ARIMA_S # 5532.287
 
 # Short-term ARUMA for home_price
 hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
 aic5.wge(hp.12, p = 0:5, q = 0:3)
 est.hp.12 = est.arma.wge(hp.12, p = 2, q = 2)
 preds = fore.aruma.wge(df_train_s$home_price, phi = est.hp.12$phi, s = 12, d = 1, n.ahead = 6, lastn = F)
-ASE = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
-ASE # 261542338
-RMSE = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
-RMSE # 10065.17
+ASE_ARUMA_S = mean((df_test_s$home_price[(length(df_test_s$home_price)-6+1)] - preds$f)^2)
+ASE_ARUMA_S # 261542338
+RMSE_ARUMA_S = sqrt(mean((df_test_s$home_price - preds$f[1:6])^2))
+RMSE_ARUMA_S # 10065.17
 
 # Short-term Signal-Plus Noise for home_price
 wbg.boot.wge(df_train_s$home_price) # p-value 0.06516291 <- FTR
 # Therefore, we will fit the above models only instead of continuing to look for a linear signal.
-
-
 
 
 # Long-term ARMA for cpi
@@ -277,76 +273,56 @@ wbg.boot.wge(df_train_l$unemp) # p-value 0.28070818 <- FTR
 aic5.wge(df_train_l$home_price, p = 0:5, q = 0:3)
 est.hp = est.arma.wge(df_train_l$home_price, p = 1, q = 0)
 preds = fore.arma.wge(df_train_l$home_price, phi = est.hp$phi, n.ahead = 60, lastn = TRUE)
-ASE = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
-ASE # 4583718241
-RMSE = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
-RMSE # 137303.5
+ASE_ARMA_L = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
+ASE_ARMA_L # 4583718241
+RMSE_ARMA_L = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
+RMSE_ARMA_L # 137303.5
 
 # Long-term ARIMA for home_price
 hp.d1 = artrans.wge(df_train_l$home_price, phi.tr = 1)
 aic5.wge(hp.d1, p = 0:5, q = 0:3)
 est.hp.d1 = est.arma.wge(hp.d1, p = 2, q = 3)
-preds = fore.arima.wge(df_train_l$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 60, lastn = F)
-ASE = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
-ASE # 62540456
-RMSE = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
-RMSE # 79954.15
+preds_ARIMA_L = fore.arima.wge(df_train_l$home_price, phi = est.hp.d1$phi, d = 1, n.ahead = 60, lastn = F)
+ASE_ARIMA_L = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds_ARIMA_L$f)^2)
+ASE_ARIMA_L # 62540456
+RMSE_ARIMA_L = sqrt(mean((df_test_l$home_price - preds_ARIMA_L$f[1:60])^2))
+RMSE_ARIMA_L # 79954.15
 
 # Long-term ARUMA for home_price
 hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
 aic5.wge(hp.12, p = 0:5, q = 0:3)
 est.hp.12 = est.arma.wge(hp.12, p = 2, q = 3)
 preds = fore.aruma.wge(df_train_l$home_price, phi = est.hp.12$phi, s = 12, d = 1, n.ahead = 60, lastn = F)
-ASE = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
-ASE # 278490092
-RMSE = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
-RMSE # 59072.12
+ASE_ARUMA_L = mean((df_test_l$home_price[(length(df_test_l$home_price)-60+1)] - preds$f)^2)
+ASE_ARUMA_L # 278490092
+RMSE_ARUMA_L = sqrt(mean((df_test_l$home_price - preds$f[1:60])^2))
+RMSE_ARUMA_L # 59072.12
 
 # Long-term Signal-Plus Noise for unemp
 wbg.boot.wge(df_train_l$home_price) # p-value 0.03508772 <- Reject
 
 
-
-
-# TODO: ALEX
 # 4b. Fitting VAR model
-# TO DO: 
-# - Basic model, need to refine it
-# - Need to move some of the code to part 5 and 6
 
 # Short term
 VARselect(df_train_s, type = "none")
 var_fit_s=VAR(df_train_s,p=2,type="none")
 var_fit_s
-
 preds_var_s = predict(var_fit_s,n.ahead= 6)
+ASE_VAR_S = mean((df_test_s$home_price[1:6] - preds_var_s$fcst$home_price[1:6])^2)
+ASE_VAR_S
 
-ASE_var_s = mean((df_test_s$home_price[1:6] - preds_var_s$fcst$home_price[1:6])^2)
-ASE_var_s
-
-
-# fanchart(preds_var_s, colors = brewer.pal(n = 6, name = "Blues"))
 
 # Long term
 VARselect(df_train_l, type = "none")
 var_fit_l=VAR(df_train_l,p=2,type="none")
 var_fit_l
-
-
 preds_var_l = predict(var_fit_l,n.ahead= 60)
-ASE_var_l = mean((df_test_l$home_price[1:60] - preds_var_l$fcst$home_price[1:60])^2)
-ASE_var_l
-
-# fanchart(preds_var_l, colors = brewer.pal(n = 6, name = "Blues"))
+ASE_VAR_L = mean((df_test_l$home_price[1:60] - preds_var_l$fcst$home_price[1:60])^2)
+ASE_VAR_L
 
 
-
-
-
-
-# TODO: ALEX
 # 4c. Fitting Neural Network (mlp) model
-# TO DO: very basic model, need to refine it
 
 # Short term
 
@@ -356,17 +332,20 @@ fore_mlp_unemp_short = forecast(mlp_fit_unemp_short, h = 6)
 mlp_fit_cpi_short = mlp(cpi_ts_train_s, reps = 50, comb = "median")
 fore_mlp_cpi_short = forecast(mlp_fit_cpi_short, h = 6)
 
+# Fitting the model
 mlp_fit_short = mlp(home_price_ts_train_s, xreg = data.frame(cpi = cpi_ts_train_s, unemp = unemp_ts_train_s))
 
 df_original = data.frame(cpi = df_train_s$cpi, unemp = df_train_s$unemp)
 df_fore_s = data.frame(cpi = fore_mlp_cpi_short$mean, unemp = fore_mlp_unemp_short$mean)
 
+# Forecasting
 forecast_mlp_short = forecast(mlp_fit_short, h=6, xreg = rbind(df_original, df_fore_s))
 
+# Plotting
 plot(df_test_s$home_price[1:6],type = "l")
 lines(seq(1,6),forecast_mlp_short$mean, col = "blue")
-ASE = mean((df_test_s$home_price[1:6]-forecast_mlp_short$mean)^2)
-ASE
+ASE_MLP_S = mean((df_test_s$home_price[1:6]-forecast_mlp_short$mean)^2)
+ASE_MLP_S
 
 # Long term
 
@@ -376,37 +355,71 @@ fore_mlp_unemp_long = forecast(mlp_fit_unemp_long, h = 60)
 mlp_fit_cpi_long = mlp(cpi_ts_train_l, reps = 50, comb = "median")
 fore_mlp_cpi_long = forecast(mlp_fit_cpi_long, h = 60)
 
+# Fitting the model
 mlp_fit_long = mlp(home_price_ts_train_l, xreg = data.frame(cpi = cpi_ts_train_l, unemp = unemp_ts_train_l))
 
 df_original = data.frame(cpi = df_train_l$cpi, unemp = df_train_l$unemp)
 df_fore_l = data.frame(cpi = fore_mlp_cpi_long$mean, unemp = fore_mlp_unemp_long$mean)
 
+# Forecasting
 forecast_mlp_long = forecast(mlp_fit_long, h=60, xreg = rbind(df_original, df_fore_l))
 
+# Plotting
 plot(df_test_l$home_price[1:60],type = "l")
 lines(seq(1,60),forecast_mlp_long$mean, col = "blue")
-ASE = mean((df_test_l$home_price[1:60]-forecast_mlp_long$mean)^2)
-ASE
+ASE_MLP_L = mean((df_test_l$home_price[1:60]-forecast_mlp_long$mean)^2)
+ASE_MLP_L
 
-# TODO: JAE
-# 4d. Fitting Ensemble model using at least two of the above. 
-ensemble = (preds_var_l$fcst$cpi[,1] + forecast_mlp_long$mean)/2
-ensemble
-ASE.ensemble = mean((df_test_l$home_price[1:60] - ensemble)^2)
-ASE.ensemble # 43293525344
+# 4d. Fitting Ensemble model using at least two of the above.
+# We are using the ARIMA and MLP models
+
+# Short term
+ensemble_s = (preds_ARIMA_S$f + forecast_mlp_short$mean)/2
+ensemble_s
+ASE_ENSEMBLE_S = mean((df_test_s$home_price[1:6] - ensemble_s)^2)
+ASE_ENSEMBLE_S # 43293525344
+
+# Long term
+ensemble_l = (preds_ARIMA_L$f + forecast_mlp_long$mean)/2
+ensemble_l
+ASE_ENSEMBLE_L = mean((df_test_l$home_price[1:60] - ensemble_l)^2)
+ASE_ENSEMBLE_L # 43293525344
 
 
-
-# Waiting until we have fleshed out the models
 # 5. Pick a short and long term forecast horizon based on your “problem” from part 3 above and compare all models with the ASE and the rolling window RMSE for both the short and long term forecasts 
-# Short term: 6 months
-# Long term: 5 years
+# Short term horizon: 6 months
+# Long term horizon: 5 years
 
+# Evaluating models for short-term forecast:
+RMSE_ARMA_S
+RMSE_ARIMA_S
+RMSE_ARUMA_S
 
+ASE_ARMA_S
+ASE_ARIMA_S
+ASE_ARUMA_S
+ASE_VAR_S
+ASE_MLP_S
+ASE_ENSEMBLE_S
 
+# It looks like MLP is the best one
 
-# Waiting until we have fleshed out the models
+# Evaluating models for long-term forecast:
+RMSE_ARMA_L
+RMSE_ARIMA_L
+RMSE_ARUMA_L
+
+ASE_ARMA_L
+ASE_ARIMA_L
+ASE_ARUMA_L
+ASE_VAR_L
+ASE_MLP_L
+ASE_ENSEMBLE_L
+
+# It looks like ARIMA is the best one
+
 # 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
-# Waiting until we have fleshed out the models
+
+# TODO: identify a short term and a long term model and probably train it on entire data set (instead of test set) then forecast
 
 ```
