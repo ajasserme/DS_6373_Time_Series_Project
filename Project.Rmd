@@ -423,10 +423,12 @@ ASE_ENSEMBLE_L
 # Plotting short-term forecast versus actual price for MLP
 plot(df_test_s$home_price[1:6],type = "l")
 lines(seq(1,6),forecast_mlp_short$mean, col = "blue")
+legend("topright", legend=c("Actual Price", "Predicted Price"), col=c("black", "blue"), lty=1:1, cex=1)
 
 # Plotting long-term forecast versus actual price for VAR
 plot(df_test_l$home_price[1:60],type = "l")
 lines(seq(1,60), preds_var_l$fcst$home_price[,1], col = "blue")
+legend("topleft", legend=c("Actual Price", "Predicted Price"), col=c("black", "blue"), lty=1:1, cex=1)
 
 
 # 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
