@@ -1851,44 +1851,69 @@ ASE_ENSEMBLE_L # 43293525344</code></pre>
 # Evaluating models for short-term forecast:
 RMSE_ARMA_S</code></pre>
 <pre><code>## [1] 11276.38</code></pre>
-<pre class="r"><code>RMSE_ARIMA_S</code></pre>
+<pre class="r"><code># 11276.38
+RMSE_ARIMA_S</code></pre>
 <pre><code>## [1] 5532.287</code></pre>
-<pre class="r"><code>RMSE_ARUMA_S</code></pre>
+<pre class="r"><code># 5532.287
+RMSE_ARUMA_S</code></pre>
 <pre><code>## [1] 10065.17</code></pre>
-<pre class="r"><code>ASE_ARMA_S</code></pre>
+<pre class="r"><code># 10065.17
+# ARIMA has the smallest RMSE for short-term forecast: 5532.287
+
+ASE_ARMA_S</code></pre>
 <pre><code>## [1] 302887206</code></pre>
-<pre class="r"><code>ASE_ARIMA_S</code></pre>
+<pre class="r"><code># 302887206
+ASE_ARIMA_S</code></pre>
 <pre><code>## [1] 12498440</code></pre>
-<pre class="r"><code>ASE_ARUMA_S</code></pre>
+<pre class="r"><code># 12498440
+ASE_ARUMA_S</code></pre>
 <pre><code>## [1] 261542338</code></pre>
-<pre class="r"><code>ASE_VAR_S</code></pre>
+<pre class="r"><code># 261542338
+ASE_VAR_S</code></pre>
 <pre><code>## [1] 303189519</code></pre>
-<pre class="r"><code>ASE_MLP_S</code></pre>
+<pre class="r"><code># 303189519
+ASE_MLP_S</code></pre>
 <pre><code>## [1] 7542249</code></pre>
-<pre class="r"><code>ASE_ENSEMBLE_S</code></pre>
+<pre class="r"><code># 7542249
+ASE_ENSEMBLE_S</code></pre>
 <pre><code>## [1] 14202982</code></pre>
-<pre class="r"><code># It looks like MLP is the best one
+<pre class="r"><code># 14202982
+# MLP has the smallest ASE for short-term forecast: 7542249
+
 
 # Evaluating models for long-term forecast:
 RMSE_ARMA_L</code></pre>
 <pre><code>## [1] 137303.5</code></pre>
-<pre class="r"><code>RMSE_ARIMA_L</code></pre>
+<pre class="r"><code># 137303.5
+RMSE_ARIMA_L</code></pre>
 <pre><code>## [1] 79954.15</code></pre>
-<pre class="r"><code>RMSE_ARUMA_L</code></pre>
+<pre class="r"><code># 79954.15
+RMSE_ARUMA_L</code></pre>
 <pre><code>## [1] 59072.12</code></pre>
-<pre class="r"><code>ASE_ARMA_L</code></pre>
+<pre class="r"><code># 59072.12
+# ARUMA has the smallest RMSE for short-term forecast: 59072.12
+
+ASE_ARMA_L</code></pre>
 <pre><code>## [1] 4583718241</code></pre>
-<pre class="r"><code>ASE_ARIMA_L</code></pre>
+<pre class="r"><code># 4583718241
+ASE_ARIMA_L</code></pre>
 <pre><code>## [1] 62540456</code></pre>
-<pre class="r"><code>ASE_ARUMA_L</code></pre>
+<pre class="r"><code># 62540456
+ASE_ARUMA_L</code></pre>
 <pre><code>## [1] 278490092</code></pre>
-<pre class="r"><code>ASE_VAR_L</code></pre>
+<pre class="r"><code># 278490092
+ASE_VAR_L</code></pre>
 <pre><code>## [1] 3380516580</code></pre>
-<pre class="r"><code>ASE_MLP_L</code></pre>
+<pre class="r"><code># 3380516580
+ASE_MLP_L</code></pre>
 <pre><code>## [1] 4215633554</code></pre>
-<pre class="r"><code>ASE_ENSEMBLE_L</code></pre>
+<pre class="r"><code># 4215633554
+ASE_ENSEMBLE_L</code></pre>
 <pre><code>## [1] 5234559708</code></pre>
-<pre class="r"><code># It looks like ARIMA is the best one
+<pre class="r"><code># 5234559708
+# ARIMA has the smallest ASE for long-term forecast: 62540456
+
+# TODO: show for &quot;best&quot; models short/long term plot of predicted prices versus real prices
 
 # 6. Provide the forecasts and prediction limits (when possible) for both the short and long term forecasts. 
 
