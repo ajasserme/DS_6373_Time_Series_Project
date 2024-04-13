@@ -271,6 +271,18 @@ ASE_ARMA_L # 4583718241
 RW_RMSE_ARMA_L = roll.win.rmse.wge(df_train_s$home_price, horizon = 60, phi = est.hp$phi)
 RW_RMSE_ARMA_L # 29022.996
 
+#Compare Spectral Densities ARMA(1,0)
+
+sims = 5
+SpecDen = parzen.wge(df_train_s$home_price, plot = "FALSE")
+plot(SpecDen$freq,SpecDen$pzgram, type = "l", lwd = 6)
+
+for( i in 1: sims)
+{
+   SpecDen2 = parzen.wge(gen.arma.wge(200, phi = est.hp$phi, theta = est.hp$theta, plot = "FALSE"), plot = "FALSE")
+   lines(SpecDen2$freq,SpecDen2$pzgram, lwd = 2, col = "red")
+}
+
 # Long-term ARIMA for home_price
 hp.d1 = artrans.wge(df_train_l$home_price, phi.tr = 1)
 aic5.wge(hp.d1, p = 0:5, q = 0:3)
@@ -281,6 +293,18 @@ ASE_ARIMA_L # 62540456
 RW_RMSE_ARIMA_L = roll.win.rmse.wge(df_train_s$home_price, horizon = 60, d=1, phi = est.hp.d1$phi)
 RW_RMSE_ARIMA_L # 34804.298
 
+#Compare Spectral Densities ARIMA(2,1,3)
+
+sims = 5
+SpecDen = parzen.wge(df_train_s$home_price, plot = "FALSE")
+plot(SpecDen$freq,SpecDen$pzgram, type = "l", lwd = 6)
+
+for( i in 1: sims)
+{
+   SpecDen2 = parzen.wge(gen.aruma.wge(200,d = 1, phi = est.hp.d1$phi, theta = est.hp.d1$theta, plot = "FALSE"), plot = "FALSE")
+   lines(SpecDen2$freq,SpecDen2$pzgram, lwd = 2, col = "red")
+}
+
 # Long-term ARUMA for home_price
 hp.12 = artrans.wge(hp.d1, phi.tr = c(rep(0,11),1))
 aic5.wge(hp.12, p = 0:5, q = 0:3)
@@ -290,6 +314,18 @@ ASE_ARUMA_L = mean((df_test_l$home_price[1:60] - preds$f)^2)
 ASE_ARUMA_L # 278490092
 RW_RMSE_ARUMA_L = roll.win.rmse.wge(df_train_s$home_price, horizon = 60, s=12, d=1, phi = est.hp$phi)
 RW_RMSE_ARUMA_L # 150777.681
+
+#Compare Spectral Densities ARIMA(2,1,3) s = 12
+
+sims = 5
+SpecDen = parzen.wge(df_train_s$home_price, plot = "FALSE")
+plot(SpecDen$freq,SpecDen$pzgram, type = "l", lwd = 6)
+
+for( i in 1: sims)
+{
+   SpecDen2 = parzen.wge(gen.aruma.wge(200,d = 1, s = 12, phi = est.hp.12$phi, theta = est.hp.12$theta, plot = "FALSE"), plot = "FALSE")
+   lines(SpecDen2$freq,SpecDen2$pzgram, lwd = 2, col = "red")
+}
 
 # Long-term Signal-Plus Noise for unemp
 wbg.boot.wge(df_train_l$home_price) # p-value 0.03508772 <- Reject
